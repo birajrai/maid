@@ -4,6 +4,9 @@ from flask import Flask
 from threading import Thread
 import datetime
 import logging
+import discord
+from discord import Activity, ActivityType, Status
+from discord.ext import commands, tasks
 
 load_dotenv()
 
@@ -20,9 +23,6 @@ BIRTHDAYS = {
 }
 CHANNEL_ID = 1083990207143088158
 
-import discord
-from discord.ext import commands, tasks
-
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='>', intents=intents)
@@ -32,6 +32,7 @@ app = Flask(__name__)
 # Set log level to ERROR for werkzeug logger
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+
 
 @app.route('/')
 def home():
@@ -63,10 +64,12 @@ async def check_birthdays():
         break
 
 
-
 @bot.event
 async def on_ready():
   print(f'{bot.user.name} has connected to Discord!')
+  await bot.change_presence(activity=Activity(name='Minecraft',
+                                              type=ActivityType.playing),
+                            status=Status.idle)
   check_birthdays.start()
 
 
